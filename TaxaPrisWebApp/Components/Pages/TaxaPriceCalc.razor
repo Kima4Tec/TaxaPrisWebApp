@@ -1,0 +1,346 @@
+﻿@page "/TaxaPriceCalc";
+@using TaxaPrisWebApp.Services
+@using System.Collections.Generic
+@using TaxaPrisWebApp.Model
+@inject Services.TaxaService TaxaService
+@inject IJSRuntime JSRuntime
+@rendermode InteractiveServer
+
+<h3>Taxa Pris Udregner</h3>
+
+@* form start *@
+<form>
+    <h4>Vælg vogn:</h4>
+
+    @* table *@
+    @* data is retrieved from Taxapris.json *@
+    <table width="100%" height="200px">
+
+        @* first row *@
+        <tr>
+            @* first row, first column *@
+            @* choose car drop down menu *@
+            <td valign="top" width="15%" height="20px">
+                <br />Vogntype<br />
+                <select @onchange="HandleCarChange">
+                    <option value="1">[Vælg vogn]</option>
+                    <option value="1">Almindelig Vogn</option>
+                    <option value="3">Stor Vogn</option>
+                </select>
+            </td>
+
+            @* first row, second column *@
+            @* choose time of day drop down menu based on car choice *@
+            <td valign="top" width="15%" height="20px">
+                    <br />
+                @showTimeTitle
+                <br />
+                @if (ConvertedCarMessage == "Almindelig Vogn")
+                    {
+                    <select @onchange="HandleTimeChange">
+                            <option value="1">[Vælg tid]</option>
+                        <option value="1">@allPrice.First(c => c.Id == 1).Tid</option>
+                        <option value="2">@allPrice.First(c => c.Id == 2).Tid</option>
+                        </select>
+                    }
+                else if (ConvertedCarMessage == "Stor Vogn")
+                    {
+                    <select @onchange="HandleTimeChange">
+                            <option value="3">[Vælg tid]</option>
+                        <option value="3">@allPrice.First(c => c.Id == 3).Tid</option>
+                        <option value="4">@allPrice.First(c => c.Id == 4).Tid</option>
+                        </select>
+                    }
+                    else
+                {
+                    <select @onchange="HandleTimeChange">
+                    <option value="1">[Vælg tid]</option>
+                        <option value="1">@allPrice.First(c => c.Id == 1).Tid</option>
+                        <option value="2">@allPrice.First(c => c.Id == 2).Tid</option>
+                </select>
+                }
+            </td>
+
+            @* first row, third column *@
+            @* choose number of passenger drop down menu. In a standard car, you can only have 6 passengers *@
+            <td valign="top" width="15%" height="20px">
+
+                @if (ConvertedCarMessage == "Almindelig Vogn")
+                    {
+                    <br />
+
+                    @showPassengerTitle
+
+                    <br />
+                    <select @onchange="HandlePassengerChange">
+                        <option value="0">[Vælg antal]</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                    </select>
+                    @if (SelectedPassenger > 4)
+                        {
+                        @JSRuntime.InvokeVoidAsync("alert", "Der er et tillæg ved flere end 6 passagerer i en almindelig vogn!")
+                        ;
+                        }
+                    }
+                    else
+                    {
+                    <br />
+
+                    @showPassengerTitle
+
+                    <br />
+                    <select @onchange="HandlePassengerChange">
+                        <option value="0">[Vælg antal]</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                        <option value="8">8</option>
+                    </select>
+                    }
+            </td>
+
+            @* first row, fourth column rowspan 3 *@
+            @* get map from google *@
+            <td rowspan="3">
+                <div style="width: 100%">
+                    @* <iframe width="70%" height="200" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.com/maps?width=100%25&amp;height=600&amp;hl=en&amp;q=Telegrafvej%209+(Tec)&amp;t=&amp;z=14&amp;ie=UTF8&amp;iwloc=B&amp;output=embed"><a href="https://www.gps.ie/">gps vehicle tracker</a></iframe> *@
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m28!1m12!1m3!1d35919.143370162!2d12.393316280137304!3d55.759432254864116!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m13!3e6!4m5!1s0x46524e6455555555%3A0x72b7451af0607a65!2sMaskinmesterskolen%20K%C3%B8benhavn%2C%20Gyrithe%20Lemches%20Vej%2C%20Kongens%20Lyngby!3m2!1d55.7861183!2d12.5114705!4m5!1s0x46525aecb918d019%3A0xb847ea9201483a5b!2sTelegrafvej%209%2C%202750%20Ballerup!3m2!1d55.7328317!2d12.342666099999999!5e0!3m2!1sda!2sdk!4v1715937359537!5m2!1sda!2sdk" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+            </td>
+        </tr>
+
+                @* second row*@
+        <tr>
+            @* second row, first column *@
+            @* choose supplementaries look if they are checked *@
+            <td valign="top">
+                <br />
+                @foreach (var option in Options)
+                {
+                    <label>
+                        <input type="checkbox" @bind="option.IsChecked" /> @option.Label
+                    </label>
+
+                    <br />
+                }
+                <br />
+                <br />
+                @if (Options[0].IsChecked == true)
+                {
+                    <select @onchange="HandleBikeChange">
+                        <option value="0">[Vælg antal]</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                    </select>
+                }
+                <br />
+                @if (Options[1].IsChecked == true)
+                {
+                    <select @onchange="HandleUpChange">
+                        <option value="0">[Vælg antal]</option>
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                    </select>
+                }
+                @if (Options[2].IsChecked == true)
+                {
+                    AirportPrice = int.Parse(currentTaxa.Tillaeg["Lufthavn"]);
+                }
+                @if (Options[3].IsChecked == true)
+                {
+                    LiftPrice = int.Parse(currentTaxa.Tillaeg["LiftVogn"]);
+                }
+                @if (Options[4].IsChecked == true)
+                {
+                    OeresundPrice = int.Parse(currentTaxa.Tillaeg["Oeresund"]);
+                }
+                @if (Options[5].IsChecked == true)
+                {
+                    StorebaeltPrice = int.Parse(currentTaxa.Tillaeg["Storebaelt"]);
+                }
+            </td>
+        </tr>
+    </table>
+</form>
+@* form end *@
+
+@* get distance from user and print out data *@
+<table width="100%">
+    <tr>
+        <td width="15%"></td>
+        <td width="15%"></td>
+        <td width="15%"></td>
+        <td>
+        <label for="inputField">Skriv distance:</label>
+        <br>
+            <input type="text" id="inputField" name="inputField" @bind="DistanceValue">
+        <br>
+        <br>
+            <input class="btn btn-primary" type="submit" value="Submit" @onclick="PrintoutData">
+            <br>
+            <br>
+            <h3>@SelectedData</h3>
+        </td>
+    </tr>
+</table>
+
+<br />
+<br />
+<br />
+<br />
+
+
+
+@code {
+
+    public List<TaxaService> allPrice;
+    public string showTimeTitle = "Tidspunkt";
+    public string showPassengerTitle = "Antal Passagerer";
+    public int currentQuestionIndex = 0;
+    public TaxaService? currentTaxa;
+    public string? _selectedOption;
+
+    //PROPERTIES
+    //Get carprice
+    public string? Message { get; set; }
+    public string? ConvertedCarMessage { get; set; }
+    public string? SelectedTime { get; set; }
+    public int SelectedPassenger { get; set; }
+
+    //Supplementary
+    public int ConvertedBikePrice { get; set; }
+    public int ConvertedUpPrice { get; set; }
+    public int AirportPrice { get; set; }
+    public int LiftPrice { get; set; }
+    public int OeresundPrice { get; set; }
+    public int StorebaeltPrice { get; set; }
+
+
+    //Print out data
+    public string? SelectedData { get; set; }
+    public string? DistanceValue { get; set; }
+    public int SelectedId { get; set; }
+    public string? SelectedOptionsText { get; set; }
+
+    public List<CheckBoxOption> Options = new List<CheckBoxOption>
+    {
+        new CheckBoxOption { IsChecked = false, Label = "Cykel" },
+        new CheckBoxOption { IsChecked = false, Label = "Opbæring" },
+        new CheckBoxOption { IsChecked = false, Label = "Lufthavn" },
+        new CheckBoxOption { IsChecked = false, Label = "Liftvogn" },
+        new CheckBoxOption { IsChecked = false, Label = "Øresund" },
+        new CheckBoxOption { IsChecked = false, Label = "Storebælt" }
+    };
+
+    /// <summary>
+    /// Starting up - and getting data from json file
+    /// </summary>
+    protected override void OnInitialized()
+    {
+        allPrice = TaxaService.GetJsonData();
+        currentTaxa = allPrice.FirstOrDefault();
+    }
+
+    public void PrintSelectedOptions()
+    {
+        var selectedOptions = Options.Where(option => option.IsChecked).Select(option => option.Label);
+        SelectedOptionsText = "Selected Options: " + string.Join(", ", selectedOptions);
+    }
+
+    public void HandleCarChange(ChangeEventArgs e)
+    {
+        string? selectedCar = e.Value.ToString();
+        int selectedCarId = int.Parse(selectedCar);
+        ConvertedCarMessage = allPrice.FirstOrDefault(c => c.Id == selectedCarId).VognType;
+    }
+
+    public void HandleTimeChange(ChangeEventArgs f)
+    {
+        string? selectedTime = f.Value.ToString();
+        int convertedTime = int.Parse(selectedTime);
+        SelectedTime = allPrice.FirstOrDefault(c => c.Id == convertedTime).Tid;
+    }
+
+    public void HandlePassengerChange(ChangeEventArgs g)
+    {
+        string? selectedPassenger = g.Value.ToString();
+        if (selectedPassenger != string.Empty)
+        {
+            Message = "\tDu valgte: ";
+        }
+        else
+        {
+            Message = "";
+        }
+        SelectedPassenger = int.Parse(selectedPassenger);//TODO Handle hvis passenger er null
+    }
+
+    public void HandleBikeChange(ChangeEventArgs h)
+    {
+        string? selectedBike = h.Value.ToString();
+        int selectedBikeNo = int.Parse(selectedBike);
+        ConvertedBikePrice = int.Parse(allPrice.FirstOrDefault().Tillaeg["PrCykel"]) * selectedBikeNo;
+    }
+
+    public void HandleUpChange(ChangeEventArgs h)
+    {
+        string? selectedUp = h.Value.ToString();
+        int selectedUpNo = int.Parse(selectedUp);
+        ConvertedUpPrice = int.Parse(allPrice.FirstOrDefault().Tillaeg["Opbaering"]) * selectedUpNo;
+    }
+
+    public void PrintoutData()
+    {
+        if (ConvertedCarMessage == "Almindelig Vogn")
+        {
+            if (SelectedTime == "Dag")
+            {
+                SelectedId = 1;
+                // if (SelectedPassenger > 4)
+                // {
+
+                // }
+            }
+            else
+            {
+                SelectedId = 2;
+            }
+        }
+        else if (ConvertedCarMessage == "Stor Vogn")
+        {
+            if (SelectedTime == "Dag")
+            {
+                SelectedId = 3;
+            }
+            else
+            {
+                SelectedId = 4;
+            }
+        }
+        if (SelectedData != null)
+        {
+
+        }
+        int startPris = int.Parse(allPrice.FirstOrDefault(car => car.Id == SelectedId).Koersel["StartPris"]);
+        decimal kmPris = decimal.Parse(allPrice.FirstOrDefault(car => car.Id == SelectedId).Koersel["KilometerPris"]);
+        decimal minutPris = decimal.Parse(allPrice.FirstOrDefault(car => car.Id == SelectedId).Koersel["MinutPris"]);
+        decimal distance = decimal.Parse(DistanceValue);
+
+        decimal minuts = distance * 1.2M;
+        decimal? turPris = distance * kmPris + minuts * minutPris + startPris + ConvertedBikePrice + ConvertedUpPrice + AirportPrice + LiftPrice + OeresundPrice + StorebaeltPrice;
+        string selectedData = $"Din tur koster: {turPris:F2} kr.";
+        SelectedData = selectedData;
+    }
+}

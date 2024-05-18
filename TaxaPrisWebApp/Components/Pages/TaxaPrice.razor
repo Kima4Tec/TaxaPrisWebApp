@@ -1,0 +1,81 @@
+﻿@page "/TaxaPrice";
+@using TaxaPrisWebApp.Services
+@inject Services.TaxaService TaxaService
+
+<h3>Taxa Priser</h3>
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th></th>
+            <th>
+                Almindelig Vogn
+                <br /><div style="font-size: 0.8rem; font-weight: normal;">Mandag-fredag kl.06-18
+                    <br />&nbsp;</div>
+            </th>
+            <th>
+                Almindelig Vogn
+                <br /><div style="font-size: 0.8rem; font-weight: normal;">Mandag-fredag kl.18-06
+                    <br />Helligdag/Weekend kl.00–24</div>
+            </th>
+            <th>Store Vogne - minibus
+                <br /><div style="font-size: 0.8rem; font-weight: normal;">
+                    Mandag-fredag kl.06-18
+                    <br />&nbsp;
+                </div>
+            </th>
+            <th>Store Vogne - minibus
+                <br /><div style="font-size: 0.8rem; font-weight: normal;">
+                    Mandag-fredag kl.18-06
+                    <br />Helligdag/Weekend kl.00–24
+                </div>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        
+        <tr>
+            <th>Startpris</th>
+            <th>@allPrice.FirstOrDefault(car => car.Id == 1).Koersel["StartPris"] kr.</th>
+            <th>@allPrice.FirstOrDefault(car => car.Id == 2).Koersel["StartPris"] kr.</th>
+            <th>@allPrice.FirstOrDefault(car => car.Id == 3).Koersel["StartPris"] kr.</th>
+            <th>@allPrice.FirstOrDefault(car => car.Id == 4).Koersel["StartPris"] kr.</th>
+        </tr>
+        <tr>
+            <th>Kilometerpris</th>
+            <th>@allPrice.FirstOrDefault(car => car.Id == 1).Koersel["KilometerPris"] kr.</th>
+            <th>@allPrice.FirstOrDefault(car => car.Id == 2).Koersel["KilometerPris"] kr.</th>
+            <th>@allPrice.FirstOrDefault(car => car.Id == 3).Koersel["KilometerPris"] kr.</th>
+            <th>@allPrice.FirstOrDefault(car => car.Id == 4).Koersel["KilometerPris"] kr.</th>
+        </tr>
+        <tr>
+            <th>Minutpris</th>
+            <th>@allPrice.FirstOrDefault(car => car.Id == 1).Koersel["MinutPris"] kr.</th>
+            <th>@allPrice.FirstOrDefault(car => car.Id == 2).Koersel["MinutPris"] kr.</th>
+            <th>@allPrice.FirstOrDefault(car => car.Id == 3).Koersel["MinutPris"] kr.</th>
+            <th>@allPrice.FirstOrDefault(car => car.Id == 4).Koersel["MinutPris"] kr.</th>
+        </tr>
+    </tbody>
+</table>
+<br />
+<br />
+<h3>Tillægspriser</h3>
+<p>Tillæg pr. cykel: @currentTaxa.Tillaeg["PrCykel"] kr.</p>
+<p>Tillæg pr. opbæring: @currentTaxa.Tillaeg["Opbaering"] kr.</p>
+<p>Tillæg for lufthavn: @currentTaxa.Tillaeg["Lufthavn"] kr.</p>
+<p>Tillæg for 5-6 passagerer i almindelig vogn: @currentTaxa.Tillaeg["MereEnd4"] kr.</p>
+<p>Tillæg for Liftvogn: @currentTaxa.Tillaeg["LiftVogn"] kr.</p>
+<p>Tillæg for kørsel over Øresund: @currentTaxa.Tillaeg["Oeresund"] kr.</p>
+<p>Tillæg for kørsel over Storebælt: @currentTaxa.Tillaeg["Storebaelt"] kr.</p>
+
+@code {
+    private List<TaxaService> allPrice;
+    private TaxaService currentTaxa;
+    private string _selectedOption;
+
+    protected override void OnInitialized()
+    {
+        allPrice = TaxaService.GetJsonData();
+        currentTaxa = allPrice.FirstOrDefault();
+    }
+
+}

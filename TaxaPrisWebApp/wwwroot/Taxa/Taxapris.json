@@ -1,0 +1,86 @@
+[
+  {
+    "Id": 1,
+    "VognType": "Almindelig Vogn",
+    "AntalPassagerer": "1-6 passagerer",
+    "Tid": "Dag",
+    "Tidspunkt": "Mandag-fredag kl.06-18",
+    "Koersel": {
+      "StartPris": "37",
+      "KilometerPris": "12,75",
+      "MinutPris": "5,75"
+    },
+    "Tillaeg": {
+      "PrCykel": "30",
+      "Opbaering": "30",
+      "Lufthavn": "15",
+      "MereEnd4": "40",
+      "LiftVogn": "350",
+      "Oeresund": "350",
+      "Storebaelt": "540"
+    }
+  },
+  {
+    "Id": 2,
+    "VognType": "Almindelig Vogn",
+    "AntalPassagerer": "1-6 passagerer",
+    "Tid": "AftenNatHelligdag",
+    "Tidspunkt": "Mandag-fredag kl.18-06 og lørdag-søndag kl. 00-24",
+    "Koersel": {
+      "StartPris": "47",
+      "KilometerPris": "16",
+      "MinutPris": "7"
+    },
+    "Tillaeg": {
+      "PrCykel": "30",
+      "Opbaering": "30",
+      "Lufthavn": "15",
+      "MereEnd4": "40",
+      "LiftVogn": "350",
+      "Oeresund": "350",
+      "Storebaelt": "540"
+    }
+  },
+  {
+    "Id": 3,
+    "VognType": "Stor Vogn - minibus",
+    "AntalPassagerer": "7-8 passagerer",
+    "Tid": "Dag",
+    "Tidspunkt": "Mandag-fredag kl.06-18",
+    "Koersel": {
+      "StartPris": "77",
+      "KilometerPris": "17",
+      "MinutPris": "5,75"
+    },
+    "Tillaeg": {
+      "PrCykel": "30",
+      "Opbaering": "30",
+      "Lufthavn": "15",
+      "MereEnd4": "40",
+      "LiftVogn": "350",
+      "Oeresund": "350",
+      "Storebaelt": "540"
+    }
+  },
+  {
+    "Id": 4,
+    "VognType": "Store Vogn - minibus",
+    "AntalPassagerer": "7-8 passagerer",
+    "Tid": "AftenNatHelligdag",
+    "Tidspunkt": "Mandag-fredag kl.18-06 og lørdag-søndag kl. 00-24",
+    "Koersel": {
+      "StartPris": "87",
+      "KilometerPris": "19",
+      "MinutPris": 7
+    },
+    "Tillaeg": {
+      "PrCykel": "30",
+      "Opbaering": "30",
+      "Lufthavn": "15",
+      "MereEnd4": "40",
+      "LiftVogn": "350",
+      "Oeresund": "350",
+      "Storebaelt": "540"
+    }
+  }
+]
