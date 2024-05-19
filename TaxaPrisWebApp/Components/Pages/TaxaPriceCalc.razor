@@ -6,8 +6,6 @@
 @inject IJSRuntime JSRuntime
 @rendermode InteractiveServer
 
-<h3>Taxa Pris Udregner</h3>
-
 @* form start *@
 <form>
     <h4>Vælg vogn:</h4>
@@ -81,13 +79,8 @@
                         <option value="5">5</option>
                         <option value="6">6</option>
                     </select>
-                    @if (SelectedPassenger > 4)
-                        {
-                        @JSRuntime.InvokeVoidAsync("alert", "Der er et tillæg ved flere end 6 passagerer i en almindelig vogn!")
-                        ;
-                        }
                     }
-                    else
+                else
                     {
                     <br />
 
@@ -110,10 +103,10 @@
 
             @* first row, fourth column rowspan 3 *@
             @* get map from google *@
-            <td rowspan="3">
+            <td rowspan="3" colspan="2">
                 <div style="width: 100%">
                     @* <iframe width="70%" height="200" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://maps.google.com/maps?width=100%25&amp;height=600&amp;hl=en&amp;q=Telegrafvej%209+(Tec)&amp;t=&amp;z=14&amp;ie=UTF8&amp;iwloc=B&amp;output=embed"><a href="https://www.gps.ie/">gps vehicle tracker</a></iframe> *@
-                    <iframe src="https://www.google.com/maps/embed?pb=!1m28!1m12!1m3!1d35919.143370162!2d12.393316280137304!3d55.759432254864116!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m13!3e6!4m5!1s0x46524e6455555555%3A0x72b7451af0607a65!2sMaskinmesterskolen%20K%C3%B8benhavn%2C%20Gyrithe%20Lemches%20Vej%2C%20Kongens%20Lyngby!3m2!1d55.7861183!2d12.5114705!4m5!1s0x46525aecb918d019%3A0xb847ea9201483a5b!2sTelegrafvej%209%2C%202750%20Ballerup!3m2!1d55.7328317!2d12.342666099999999!5e0!3m2!1sda!2sdk!4v1715937359537!5m2!1sda!2sdk" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m28!1m12!1m3!1d35919.143370162!2d12.393316280137304!3d55.759432254864116!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m13!3e6!4m5!1s0x46524e6455555555%3A0x72b7451af0607a65!2sMaskinmesterskolen%20K%C3%B8benhavn%2C%20Gyrithe%20Lemches%20Vej%2C%20Kongens%20Lyngby!3m2!1d55.7861183!2d12.5114705!4m5!1s0x46525aecb918d019%3A0xb847ea9201483a5b!2sTelegrafvej%209%2C%202750%20Ballerup!3m2!1d55.7328317!2d12.342666099999999!5e0!3m2!1sda!2sdk!4v1715937359537!5m2!1sda!2sdk" width="600" height="350" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                 </div>
             </td>
         </tr>
@@ -133,18 +126,23 @@
                     <br />
                 }
                 <br />
-                <br />
+
                 @if (Options[0].IsChecked == true)
                 {
+                    string bikeNo = "Antal Cykler:";
+                    @bikeNo 
                     <select @onchange="HandleBikeChange">
                         <option value="0">[Vælg antal]</option>
                         <option value="1">1</option>
                         <option value="2">2</option>
                     </select>
+                    
                 }
-                <br />
+                <br /><br />
                 @if (Options[1].IsChecked == true)
                 {
+                    string upNo = "Antal opbæringer:";
+                    @upNo
                     <select @onchange="HandleUpChange">
                         <option value="0">[Vælg antal]</option>
                         <option value="1">1</option>
@@ -182,7 +180,7 @@
         <td width="15%"></td>
         <td width="15%"></td>
         <td width="15%"></td>
-        <td>
+        <td width ="340px">
         <label for="inputField">Skriv distance:</label>
         <br>
             <input type="text" id="inputField" name="inputField" @bind="DistanceValue">
@@ -190,16 +188,13 @@
         <br>
             <input class="btn btn-primary" type="submit" value="Submit" @onclick="PrintoutData">
             <br>
-            <br>
-            <h3>@SelectedData</h3>
+        </td>
+        <td style="align-content:start;">
+            <br />
+            <span style="border-block:dashed;width:fit-content; font-size:x-large">@SelectedData</span>
         </td>
     </tr>
 </table>
-
-<br />
-<br />
-<br />
-<br />
 
 
 
@@ -218,6 +213,7 @@
     public string? ConvertedCarMessage { get; set; }
     public string? SelectedTime { get; set; }
     public int SelectedPassenger { get; set; }
+    public int MoreThanFour { get; set; }  
 
     //Supplementary
     public int ConvertedBikePrice { get; set; }
@@ -279,6 +275,12 @@
         if (selectedPassenger != string.Empty)
         {
             Message = "\tDu valgte: ";
+        if (selectedPassenger == "5" || selectedPassenger == "6")
+        {
+            JSRuntime.InvokeVoidAsync("alert", "Ved mere end 4 passagerer, er der et tillæg på 40 kr.");
+        MoreThanFour = int.Parse(allPrice.FirstOrDefault(m => m.Id == 1).Tillaeg["MereEnd4"]);
+            
+        }
         }
         else
         {
@@ -308,10 +310,6 @@
             if (SelectedTime == "Dag")
             {
                 SelectedId = 1;
-                // if (SelectedPassenger > 4)
-                // {
-
-                // }
             }
             else
             {
@@ -339,7 +337,7 @@
         decimal distance = decimal.Parse(DistanceValue);
 
         decimal minuts = distance * 1.2M;
-        decimal? turPris = distance * kmPris + minuts * minutPris + startPris + ConvertedBikePrice + ConvertedUpPrice + AirportPrice + LiftPrice + OeresundPrice + StorebaeltPrice;
+        decimal? turPris = distance * kmPris + minuts * minutPris + startPris + ConvertedBikePrice + ConvertedUpPrice + AirportPrice + LiftPrice + OeresundPrice + StorebaeltPrice + MoreThanFour;
         string selectedData = $"Din tur koster: {turPris:F2} kr.";
         SelectedData = selectedData;
     }

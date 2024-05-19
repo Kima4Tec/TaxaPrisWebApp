@@ -58,3 +58,70 @@ h1:focus {
         border: 1px solid black;
         padding: 8px;
     }
+
+/* wwwroot/css/site.css */
+
+/* Topbar styles */
+.topbar {
+    background-color: #f8f9fa;
+    border-bottom: 1px solid #e5e5e5;
+    padding: 0.5rem 1rem;
+    position: sticky;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+}
+
+.navbar-brand {
+    font-weight: bold;
+}
+
+.nav-link {
+    color: #555;
+}
+
+    .nav-link.active {
+        font-weight: bold;
+        color: #007bff !important;
+    }
+
+.content {
+    margin-top: 1rem;
+}
+ul.nav.nav-pills.nav-fill.gap-2.p-1.small.shadow-sm {
+    background-color: cornflowerblue;
+    --bs-nav-link-color: var(--bs-white);
+    --bs-nav-link-hover-color: var(--bs-black);
+    --bs-nav-pills-link-active-color: var(--bs-gray);
+    --bs-nav-pills-link-active-bg: var(--bs-white);
+}
+/* Custom styles in wwwroot/css/site.css */
+
+/* Change navbar background color */
+.navbar {
+    background-color: #343a40 !important; /* Dark background */
+}
+
+    .navbar .navbar-brand,
+    .navbar .nav-link {
+        color: #ffffff !important; /* White text */
+    }
+
+        /* Change button colors on hover and click */
+        .navbar .nav-link:hover {
+            background-color: #495057; /* Slightly lighter dark background on hover */
+        }
+
+        .navbar .nav-link:active {
+            background-color: #6c757d; /* Even lighter background on click */
+        }
+
+        /* Change active link color */
+        .navbar .nav-link.active {
+            background-color: #007bff !important; /* Blue background for active link */
+            color: #ffffff !important; /* White text for active link */
+        }
+
+/* Change topbar padding and box shadow */
+.topbar {
+    background-color: #343a4
