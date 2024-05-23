@@ -13,7 +13,11 @@ namespace TaxaPrisWebApp
             // Add services to the container.
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();
-            builder.Services.AddSingleton<TaxaService>();
+            builder.Services.AddSingleton<GetJson>();
+            builder.Services.AddSingleton<TaxaPriceData>();
+            builder.Services.AddSingleton<PrintOutData>();
+            builder.Services.AddSingleton<SupplementaryData>();
+            builder.Services.AddSingleton<GetCarPriceData>();
 
             var app = builder.Build();
 

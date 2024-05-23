@@ -1,6 +1,9 @@
 ﻿@page "/TaxaPrice";
 @using TaxaPrisWebApp.Services
-@inject Services.TaxaService TaxaService
+@using TaxaPrisWebApp.Model
+
+@inject Services.GetJson GetJson
+@inject Model.TaxaPriceData TaxaPriceData
 
 <h3>Taxa Priser</h3>
 <table class="table table-striped">
@@ -68,13 +71,13 @@
 <p>Tillæg for kørsel over Storebælt: @currentTaxa.Tillaeg["Storebaelt"] kr.</p>
 
 @code {
-    private List<TaxaService> allPrice;
-    private TaxaService currentTaxa;
+    private List<TaxaPriceData> allPrice;
+    private TaxaPriceData currentTaxa;
     private string _selectedOption;
 
     protected override void OnInitialized()
     {
-        allPrice = TaxaService.GetJsonData();
+        allPrice = GetJson.GetJsonData();
         currentTaxa = allPrice.FirstOrDefault();
     }
 

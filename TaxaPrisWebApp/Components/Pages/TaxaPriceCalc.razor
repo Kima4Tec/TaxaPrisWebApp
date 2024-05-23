@@ -1,8 +1,15 @@
 ﻿@page "/TaxaPriceCalc";
+
 @using TaxaPrisWebApp.Services
 @using System.Collections.Generic
 @using TaxaPrisWebApp.Model
-@inject Services.TaxaService TaxaService
+
+@inject Services.GetJson GetJson
+@inject Model.TaxaPriceData TaxaPriceData
+@inject Model.SupplementaryData SupplementaryData
+@inject Model.PrintOutData PrintOutData
+@inject Model.GetCarPriceData GetCarPriceData
+
 @inject IJSRuntime JSRuntime
 @rendermode InteractiveServer
 
@@ -33,7 +40,7 @@
                     <br />
                 @showTimeTitle
                 <br />
-                @if (ConvertedCarMessage == "Almindelig Vogn")
+                @if (GetCarPriceData.ConvertedCarMessage == "Almindelig Vogn")
                     {
                     <select @onchange="HandleTimeChange">
                             <option value="1">[Vælg tid]</option>
@@ -41,7 +48,7 @@
                         <option value="2">@allPrice.First(c => c.Id == 2).Tid</option>
                         </select>
                     }
-                else if (ConvertedCarMessage == "Stor Vogn")
+                else if (GetCarPriceData.ConvertedCarMessage == "Stor Vogn")
                     {
                     <select @onchange="HandleTimeChange">
                             <option value="3">[Vælg tid]</option>
@@ -63,7 +70,7 @@
             @* choose number of passenger drop down menu. In a standard car, you can only have 6 passengers *@
             <td valign="top" width="15%" height="20px">
 
-                @if (ConvertedCarMessage == "Almindelig Vogn")
+                @if (GetCarPriceData.ConvertedCarMessage == "Almindelig Vogn")
                     {
                     <br />
 
@@ -154,19 +161,19 @@
                 }
                 @if (Options[2].IsChecked == true)
                 {
-                    AirportPrice = int.Parse(currentTaxa.Tillaeg["Lufthavn"]);
+                    SupplementaryData.AirportPrice = int.Parse(currentTaxa.Tillaeg["Lufthavn"]);
                 }
                 @if (Options[3].IsChecked == true)
                 {
-                    LiftPrice = int.Parse(currentTaxa.Tillaeg["LiftVogn"]);
+                    SupplementaryData.LiftPrice = int.Parse(currentTaxa.Tillaeg["LiftVogn"]);
                 }
                 @if (Options[4].IsChecked == true)
                 {
-                    OeresundPrice = int.Parse(currentTaxa.Tillaeg["Oeresund"]);
+                    SupplementaryData.OeresundPrice = int.Parse(currentTaxa.Tillaeg["Oeresund"]);
                 }
                 @if (Options[5].IsChecked == true)
                 {
-                    StorebaeltPrice = int.Parse(currentTaxa.Tillaeg["Storebaelt"]);
+                    SupplementaryData.StorebaeltPrice = int.Parse(currentTaxa.Tillaeg["Storebaelt"]);
                 }
             </td>
         </tr>
@@ -183,7 +190,7 @@
         <td width ="340px">
         <label for="inputField">Skriv distance:</label>
         <br>
-            <input type="text" id="inputField" name="inputField" @bind="DistanceValue">
+            <input type="text" id="inputField" name="inputField" @bind="PrintOutData.DistanceValue">
         <br>
         <br>
             <input class="btn btn-primary" type="submit" value="Submit" @onclick="PrintoutData">
@@ -191,7 +198,7 @@
         </td>
         <td style="align-content:start;">
             <br />
-            <span style="border-block:dashed;width:fit-content; font-size:x-large">@SelectedData</span>
+            <span style="border-block:dashed;width:fit-content; font-size:x-large">@PrintOutData.SelectedData</span>
         </td>
     </tr>
 </table>
@@ -200,35 +207,12 @@
 
 @code {
 
-    public List<TaxaService> allPrice;
+    public List<TaxaPriceData> allPrice;
     public string showTimeTitle = "Tidspunkt";
     public string showPassengerTitle = "Antal Passagerer";
     public int currentQuestionIndex = 0;
-    public TaxaService? currentTaxa;
+    public TaxaPriceData currentTaxa;
     public string? _selectedOption;
-
-    //PROPERTIES
-    //Get carprice
-    public string? Message { get; set; }
-    public string? ConvertedCarMessage { get; set; }
-    public string? SelectedTime { get; set; }
-    public int SelectedPassenger { get; set; }
-    public int MoreThanFour { get; set; }  
-
-    //Supplementary
-    public int ConvertedBikePrice { get; set; }
-    public int ConvertedUpPrice { get; set; }
-    public int AirportPrice { get; set; }
-    public int LiftPrice { get; set; }
-    public int OeresundPrice { get; set; }
-    public int StorebaeltPrice { get; set; }
-
-
-    //Print out data
-    public string? SelectedData { get; set; }
-    public string? DistanceValue { get; set; }
-    public int SelectedId { get; set; }
-    public string? SelectedOptionsText { get; set; }
 
     public List<CheckBoxOption> Options = new List<CheckBoxOption>
     {
@@ -245,28 +229,28 @@
     /// </summary>
     protected override void OnInitialized()
     {
-        allPrice = TaxaService.GetJsonData();
+        allPrice = GetJson.GetJsonData();
         currentTaxa = allPrice.FirstOrDefault();
     }
 
     public void PrintSelectedOptions()
     {
         var selectedOptions = Options.Where(option => option.IsChecked).Select(option => option.Label);
-        SelectedOptionsText = "Selected Options: " + string.Join(", ", selectedOptions);
+        PrintOutData.SelectedOptionsText = "Selected Options: " + string.Join(", ", selectedOptions);
     }
 
     public void HandleCarChange(ChangeEventArgs e)
     {
         string? selectedCar = e.Value.ToString();
         int selectedCarId = int.Parse(selectedCar);
-        ConvertedCarMessage = allPrice.FirstOrDefault(c => c.Id == selectedCarId).VognType;
+        GetCarPriceData.ConvertedCarMessage = allPrice.FirstOrDefault(c => c.Id == selectedCarId).VognType;
     }
 
     public void HandleTimeChange(ChangeEventArgs f)
     {
         string? selectedTime = f.Value.ToString();
         int convertedTime = int.Parse(selectedTime);
-        SelectedTime = allPrice.FirstOrDefault(c => c.Id == convertedTime).Tid;
+        GetCarPriceData.SelectedTime = allPrice.FirstOrDefault(c => c.Id == convertedTime).Tid;
     }
 
     public void HandlePassengerChange(ChangeEventArgs g)
@@ -274,71 +258,70 @@
         string? selectedPassenger = g.Value.ToString();
         if (selectedPassenger != string.Empty)
         {
-            Message = "\tDu valgte: ";
+            GetCarPriceData.Message = "\tDu valgte: ";
         if (selectedPassenger == "5" || selectedPassenger == "6")
         {
             JSRuntime.InvokeVoidAsync("alert", "Ved mere end 4 passagerer, er der et tillæg på 40 kr.");
-        MoreThanFour = int.Parse(allPrice.FirstOrDefault(m => m.Id == 1).Tillaeg["MereEnd4"]);
-            
+        GetCarPriceData.MoreThanFour = int.Parse(allPrice.FirstOrDefault(m => m.Id == 1).Tillaeg["MereEnd4"]);            
         }
         }
         else
         {
-            Message = "";
+            GetCarPriceData.Message = "";
         }
-        SelectedPassenger = int.Parse(selectedPassenger);//TODO Handle hvis passenger er null
+        GetCarPriceData.SelectedPassenger = int.Parse(selectedPassenger);//TODO Handle hvis passenger er null
     }
 
     public void HandleBikeChange(ChangeEventArgs h)
     {
         string? selectedBike = h.Value.ToString();
         int selectedBikeNo = int.Parse(selectedBike);
-        ConvertedBikePrice = int.Parse(allPrice.FirstOrDefault().Tillaeg["PrCykel"]) * selectedBikeNo;
+        SupplementaryData.ConvertedBikePrice = int.Parse(allPrice.FirstOrDefault().Tillaeg["PrCykel"]) * selectedBikeNo;
     }
 
     public void HandleUpChange(ChangeEventArgs h)
     {
         string? selectedUp = h.Value.ToString();
         int selectedUpNo = int.Parse(selectedUp);
-        ConvertedUpPrice = int.Parse(allPrice.FirstOrDefault().Tillaeg["Opbaering"]) * selectedUpNo;
+        SupplementaryData.ConvertedUpPrice = int.Parse(allPrice.FirstOrDefault().Tillaeg["Opbaering"]) * selectedUpNo;
     }
 
     public void PrintoutData()
     {
-        if (ConvertedCarMessage == "Almindelig Vogn")
+        if (GetCarPriceData.ConvertedCarMessage == "Almindelig Vogn")
         {
-            if (SelectedTime == "Dag")
+            if (GetCarPriceData.SelectedTime == "Dag")
             {
-                SelectedId = 1;
+                PrintOutData.SelectedId = 1;
             }
             else
             {
-                SelectedId = 2;
+                PrintOutData.SelectedId = 2;
             }
         }
-        else if (ConvertedCarMessage == "Stor Vogn")
+        else if (GetCarPriceData.ConvertedCarMessage == "Stor Vogn")
         {
-            if (SelectedTime == "Dag")
+            if (GetCarPriceData.SelectedTime == "Dag")
             {
-                SelectedId = 3;
+                PrintOutData.SelectedId = 3;
             }
             else
             {
-                SelectedId = 4;
+                PrintOutData.SelectedId = 4;
             }
         }
-        if (SelectedData != null)
+        if (PrintOutData.SelectedData != null)
         {
 
         }
-        int startPris = int.Parse(allPrice.FirstOrDefault(car => car.Id == SelectedId).Koersel["StartPris"]);
-        decimal kmPris = decimal.Parse(allPrice.FirstOrDefault(car => car.Id == SelectedId).Koersel["KilometerPris"]);
-        decimal minutPris = decimal.Parse(allPrice.FirstOrDefault(car => car.Id == SelectedId).Koersel["MinutPris"]);
-        decimal distance = decimal.Parse(DistanceValue);
+        int startPris = int.Parse(allPrice.FirstOrDefault(car => car.Id == PrintOutData.SelectedId).Koersel["StartPris"]);
+        decimal kmPris = decimal.Parse(allPrice.FirstOrDefault(car => car.Id == PrintOutData.SelectedId).Koersel["KilometerPris"]);
+        decimal minutPris = decimal.Parse(allPrice.FirstOrDefault(car => car.Id == PrintOutData.SelectedId).Koersel["MinutPris"]);
+        decimal distance = decimal.Parse(PrintOutData.DistanceValue);
 
         decimal minuts = distance * 1.2M;
-        decimal? turPris = distance * kmPris + minuts * minutPris + startPris + ConvertedBikePrice + ConvertedUpPrice + AirportPrice + LiftPrice + OeresundPrice + StorebaeltPrice + MoreThanFour;
+        decimal? turPris = distance * kmPris + minuts * minutPris + startPris + SupplementaryData.ConvertedBikePrice + SupplementaryData.ConvertedUpPrice + SupplementaryData.AirportPrice + SupplementaryData.LiftPrice + SupplementaryData.OeresundPrice + SupplementaryData.StorebaeltPrice + GetCarPriceData.MoreThanFour;
         string selectedData = $"Din tur koster: {turPris:F2} kr.";
-        SelectedData = selectedData;
+        PrintOutData.SelectedData = selectedData;
     }
 }
