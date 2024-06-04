@@ -41,7 +41,7 @@
                         <option value="2">@allPrice.First(c => c.Id == 2).Tid</option>
                         </select>
                     }
-                else if (ConvertedCarMessage == "Stor Vogn")
+                else if (ConvertedCarMessage == "Stor Vogn - minibus")
                     {
                     <select @onchange="HandleTimeChange">
                             <option value="3">[Vælg tid]</option>
@@ -316,7 +316,7 @@
                 SelectedId = 2;
             }
         }
-        else if (ConvertedCarMessage == "Stor Vogn")
+        else if (ConvertedCarMessage == "Stor Vogn - minibus")
         {
             if (SelectedTime == "Dag")
             {
