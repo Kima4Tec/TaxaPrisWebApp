@@ -327,18 +327,25 @@
                 SelectedId = 4;
             }
         }
-        if (SelectedData != null)
-        {
 
-        }
         int startPris = int.Parse(allPrice.FirstOrDefault(car => car.Id == SelectedId).Koersel["StartPris"]);
         decimal kmPris = decimal.Parse(allPrice.FirstOrDefault(car => car.Id == SelectedId).Koersel["KilometerPris"]);
         decimal minutPris = decimal.Parse(allPrice.FirstOrDefault(car => car.Id == SelectedId).Koersel["MinutPris"]);
+
+        if (DistanceValue != null)
+        {
         decimal distance = decimal.Parse(DistanceValue);
 
         decimal minuts = distance * 1.2M;
-        decimal? turPris = distance * kmPris + minuts * minutPris + startPris + ConvertedBikePrice + ConvertedUpPrice + AirportPrice + LiftPrice + OeresundPrice + StorebaeltPrice + MoreThanFour;
+        
+        decimal? turPris = distance * kmPris + minuts * minutPris + startPris + ConvertedBikePrice + ConvertedUpPrice + AirportPrice + LiftPrice + OeresundPrice + StorebaeltPrice + MoreThanFour;          
         string selectedData = $"Din tur koster: {turPris:F2} kr.";
         SelectedData = selectedData;
+        }
+        else
+        {
+            JSRuntime.InvokeVoidAsync("alert", "Du har ikke udfyldt alle felter!");
+        }
+
     }
 }
