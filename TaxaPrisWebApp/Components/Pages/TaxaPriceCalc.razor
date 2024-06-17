@@ -320,7 +320,26 @@
         }
         return 0;
     }
+    private int GetKoerselValueAsInt(int id, string key)
+    {
+        var car = allPrice?.FirstOrDefault(c => c.Id == id);
+        if (car?.Koersel != null && car.Koersel.TryGetValue(key, out var value))
+        {
+            return int.TryParse(value, out int result) ? result : 0;
+        }
+        return 0;
+    }
 
+
+    private decimal GetKoerselValueAsDecimal(int id, string key)
+    {
+        var car = allPrice?.FirstOrDefault(c => c.Id == id);
+        if (car?.Koersel != null && car.Koersel.TryGetValue(key, out var value))
+        {
+            return decimal.TryParse(value, out decimal result) ? result : 0m;
+        }
+        return 0m;
+    }
 
     public void PrintSelectedOptions()
     {
@@ -357,7 +376,7 @@
             if (selectedPassenger == "5" || selectedPassenger == "6")
             {
                 JSRuntime.InvokeVoidAsync("alert", "Ved mere end 4 passagerer, er der et tillæg på 40 kr.");
-                    MoreThanFour = GetTillaegValueAsInt(1, "MereEnd4");
+                MoreThanFour = GetTillaegValueAsInt(1, "MereEnd4");
 
             }
         }
@@ -365,7 +384,7 @@
         {
             Message = "";
         }
-        SelectedPassenger = int.Parse(selectedPassenger);//TODO Handle hvis passenger er null
+        SelectedPassenger = int.Parse(selectedPassenger);
     }
 
     public void HandleBikeChange(ChangeEventArgs h)
@@ -415,29 +434,29 @@
                 SelectedId = 3;
             }
         }
-        if (SelectedId != 0 && DistanceValue != null && allPrice != null)
-        {
-
-        }
-        int startPris = int.Parse(allPrice.FirstOrDefault(car => car.Id == SelectedId).Koersel["StartPris"]);
-        if (DistanceValue != null)
-        {
-        decimal distance = decimal.Parse(DistanceValue);
-
-        decimal minuts = distance * 1.2M;
+        if (SelectedId != 0 && DistanceValue != null)
+        {       
+        int startPris = GetKoerselValueAsInt(SelectedId, "StartPris");
+        decimal? kmPris = GetKoerselValueAsDecimal(SelectedId, "KilometerPris");
+        decimal? minutPris = GetKoerselValueAsDecimal(SelectedId, "MinutPris");
         
+        decimal distance = decimal.Parse(DistanceValue);
+        decimal minuts = distance * 1.2M;
+
+
         decimal? turPris = distance * kmPris + minuts * minutPris + startPris + ConvertedBikePrice + ConvertedUpPrice + AirportPrice + LiftPrice + OeresundPrice + StorebaeltPrice + MoreThanFour;          
+        string selectedData = $"Den valgte tur koster {turPris:F2} kr.";
+
+        SelectedData = selectedData;
         }
         else if (SelectedId == 0)
         {
-            JSRuntime.InvokeVoidAsync("alert", "Vælg vogn");
+            JSRuntime.InvokeVoidAsync("alert", "Du skal vælge vogn for at udregne en pris.");
         }
         else if (DistanceValue == null)
         {
             JSRuntime.InvokeVoidAsync("alert", "Vælg distance. Har du ikke valgt tidspunkt og antal passagerer, vælges dagspris og under 5 passagerer.");
         }
-
     }
-        SelectedData = selectedData;
     }
 }
