@@ -32,50 +32,57 @@
         </tr>
     </thead>
     <tbody>
-        
+
         <tr>
             <th>Startpris</th>
-            <th>@allPrice.FirstOrDefault(car => car.Id == 1).Koersel["StartPris"] kr.</th>
-            <th>@allPrice.FirstOrDefault(car => car.Id == 2).Koersel["StartPris"] kr.</th>
-            <th>@allPrice.FirstOrDefault(car => car.Id == 3).Koersel["StartPris"] kr.</th>
-            <th>@allPrice.FirstOrDefault(car => car.Id == 4).Koersel["StartPris"] kr.</th>
+            <th>@GetKoerselValue(1, "StartPris") kr.</th>
+            <th>@GetKoerselValue(2, "StartPris") kr.</th>
+            <th>@GetKoerselValue(3, "StartPris") kr.</th>
+            <th>@GetKoerselValue(4, "StartPris") kr.</th>
         </tr>
         <tr>
             <th>Kilometerpris</th>
-            <th>@allPrice.FirstOrDefault(car => car.Id == 1).Koersel["KilometerPris"] kr.</th>
-            <th>@allPrice.FirstOrDefault(car => car.Id == 2).Koersel["KilometerPris"] kr.</th>
-            <th>@allPrice.FirstOrDefault(car => car.Id == 3).Koersel["KilometerPris"] kr.</th>
-            <th>@allPrice.FirstOrDefault(car => car.Id == 4).Koersel["KilometerPris"] kr.</th>
+            <th>@GetKoerselValue(1, "KilometerPris") kr.</th>
+            <th>@GetKoerselValue(2, "KilometerPris") kr.</th>
+            <th>@GetKoerselValue(3, "KilometerPris") kr.</th>
+            <th>@GetKoerselValue(4, "KilometerPris") kr.</th>
         </tr>
         <tr>
             <th>Minutpris</th>
-            <th>@allPrice.FirstOrDefault(car => car.Id == 1).Koersel["MinutPris"] kr.</th>
-            <th>@allPrice.FirstOrDefault(car => car.Id == 2).Koersel["MinutPris"] kr.</th>
-            <th>@allPrice.FirstOrDefault(car => car.Id == 3).Koersel["MinutPris"] kr.</th>
-            <th>@allPrice.FirstOrDefault(car => car.Id == 4).Koersel["MinutPris"] kr.</th>
+            <th>@GetKoerselValue(1, "MinutPris") kr.</th>
+            <th>@GetKoerselValue(2, "MinutPris") kr.</th>
+            <th>@GetKoerselValue(3, "MinutPris") kr.</th>
+            <th>@GetKoerselValue(4, "MinutPris") kr.</th>
         </tr>
     </tbody>
 </table>
 <br />
 <br />
 <h3>Tillægspriser</h3>
-<p>Tillæg pr. cykel: @currentTaxa.Tillaeg["PrCykel"] kr.</p>
-<p>Tillæg pr. opbæring: @currentTaxa.Tillaeg["Opbaering"] kr.</p>
-<p>Tillæg for lufthavn: @currentTaxa.Tillaeg["Lufthavn"] kr.</p>
-<p>Tillæg for 5-6 passagerer i almindelig vogn: @currentTaxa.Tillaeg["MereEnd4"] kr.</p>
-<p>Tillæg for Liftvogn: @currentTaxa.Tillaeg["LiftVogn"] kr.</p>
-<p>Tillæg for kørsel over Øresund: @currentTaxa.Tillaeg["Oeresund"] kr.</p>
-<p>Tillæg for kørsel over Storebælt: @currentTaxa.Tillaeg["Storebaelt"] kr.</p>
+<p>Tillæg pr. cykel: @GetTillaegValue("PrCykel") kr.</p>
+<p>Tillæg pr. opbæring: @GetTillaegValue("Opbaering") kr.</p>
+<p>Tillæg for lufthavn: @GetTillaegValue("Lufthavn") kr.</p>
+<p>Tillæg for 5-6 passagerer i almindelig vogn: @GetTillaegValue("MereEnd4") kr.</p>
+<p>Tillæg for Liftvogn: @GetTillaegValue("LiftVogn") kr.</p>
+<p>Tillæg for kørsel over Øresund: @GetTillaegValue("Oeresund") kr.</p>
+<p>Tillæg for kørsel over Storebælt: @GetTillaegValue("Storebaelt") kr.</p>
 
 @code {
-    private List<TaxaService> allPrice;
-    private TaxaService currentTaxa;
-    private string _selectedOption;
+    private List<TaxaService>? allPrice;
+    private TaxaService? currentTaxa;
 
     protected override void OnInitialized()
     {
         allPrice = TaxaService.GetJsonData();
-        currentTaxa = allPrice.FirstOrDefault();
+        currentTaxa = allPrice?.FirstOrDefault();
     }
-
+    private string GetKoerselValue(int carId, string key)
+    {
+        var car = allPrice?.FirstOrDefault(c => c.Id == carId);
+        return car?.Koersel != null && car.Koersel.TryGetValue(key, out var value) ? value : "N/A";
+    }
+    private string GetTillaegValue(string key)
+    {
+        return currentTaxa?.Tillaeg != null && currentTaxa.Tillaeg.TryGetValue(key, out var value) ? value : "N/A";
+    }
 }
