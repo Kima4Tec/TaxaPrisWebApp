@@ -135,9 +135,13 @@
                         <option value="0">[Vælg antal]</option>
                         <option value="1">1</option>
                         <option value="2">2</option>
-                    </select>
-                    
+                    </select>           
                 }
+                else if (Options[0].IsChecked == false)
+                {
+                    ConvertedBikePrice = 0;
+                }
+
                 <br /><br />
                 @if (Options[1].IsChecked == true)
                 {
@@ -152,22 +156,47 @@
                         <option value="5">5</option>
                     </select>
                 }
+                else if (Options[1].IsChecked == false)
+                {
+                    ConvertedUpPrice = 0;
+                }
+
                 @if (Options[2].IsChecked == true)
                 {
                     AirportPrice = int.Parse(currentTaxa.Tillaeg["Lufthavn"]);
                 }
+                else if (Options[2].IsChecked == false)
+                {
+                    AirportPrice = 0;
+                }
+
                 @if (Options[3].IsChecked == true)
                 {
                     LiftPrice = int.Parse(currentTaxa.Tillaeg["LiftVogn"]);
                 }
+                else if (Options[3].IsChecked == false)
+                {
+                    LiftPrice = 0;
+                }
+
                 @if (Options[4].IsChecked == true)
                 {
                     OeresundPrice = int.Parse(currentTaxa.Tillaeg["Oeresund"]);
                 }
+                else if (Options[4].IsChecked == false)
+                {
+                    OeresundPrice = 0;
+                }
+
                 @if (Options[5].IsChecked == true)
                 {
                     StorebaeltPrice = int.Parse(currentTaxa.Tillaeg["Storebaelt"]);
                 }
+                else if (Options[5].IsChecked == false)
+                {
+                    StorebaeltPrice = 0;
+                }
+
             </td>
         </tr>
     </table>
@@ -307,30 +336,28 @@
     {
         if (ConvertedCarMessage == "Almindelig Vogn")
         {
-            if (SelectedTime == "Dag")
+            if (SelectedTime == "AftenNatHelligdag")
             {
-                SelectedId = 1;
+                SelectedId = 2;
             }
             else
             {
-                SelectedId = 2;
+                SelectedId = 1;
             }
         }
         else if (ConvertedCarMessage == "Stor Vogn - minibus")
         {
-            if (SelectedTime == "Dag")
-            {
-                SelectedId = 3;
-            }
-            else
+            if (SelectedTime == "AftenNatHelligdag")
             {
                 SelectedId = 4;
             }
+            else
+            {
+                SelectedId = 3;
+            }
         }
-        if (SelectedData != null)
+        if (SelectedId != 0 && DistanceValue != null)
         {
-
-        }
         int startPris = int.Parse(allPrice.FirstOrDefault(car => car.Id == SelectedId).Koersel["StartPris"]);
         decimal kmPris = decimal.Parse(allPrice.FirstOrDefault(car => car.Id == SelectedId).Koersel["KilometerPris"]);
         decimal minutPris = decimal.Parse(allPrice.FirstOrDefault(car => car.Id == SelectedId).Koersel["MinutPris"]);
@@ -340,5 +367,15 @@
         decimal? turPris = distance * kmPris + minuts * minutPris + startPris + ConvertedBikePrice + ConvertedUpPrice + AirportPrice + LiftPrice + OeresundPrice + StorebaeltPrice + MoreThanFour;
         string selectedData = $"Din tur koster: {turPris:F2} kr.";
         SelectedData = selectedData;
+        }
+        else if (SelectedId == 0)
+        {
+            JSRuntime.InvokeVoidAsync("alert", "Vælg vogn");
+        }
+        else if (DistanceValue == null)
+        {
+            JSRuntime.InvokeVoidAsync("alert", "Vælg distance. Har du ikke valgt tidspunkt og antal passagerer, vælges dagspris og under 5 passagerer.");
+        }
+
     }
 }
