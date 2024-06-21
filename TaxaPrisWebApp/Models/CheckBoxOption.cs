@@ -1,4 +1,4 @@
-﻿namespace TaxaPrisWebApp.Model
+﻿namespace TaxaPrisWebApp.Models
 {
     public class CheckBoxOption
     {

@@ -1,18 +1,11 @@
 ﻿using Newtonsoft.Json;
+using TaxaPrisWebApp.Models;
 
 namespace TaxaPrisWebApp.Services
 {
     public class TaxaService
     {
-        public int? Id { get; set; }
-        public string? VognType { get; set; }
-        public string? AntalPassagerer { get; set; }
-        public string? Tid { get; set; }
-        public string? Tidspunkt { get; set; }
-        public Dictionary<string, string>? Koersel { get; set; }
-        public Dictionary<string, string>? Tillaeg { get; set; }
-
-        public List<TaxaService>? GetJsonData()
+        public List<TaxaPriceData>? GetJsonData()
         {
             //Name of json-file into variable
             string jsonFilePath = "wwwroot/Taxa/Taxapris.json";
@@ -34,10 +27,10 @@ namespace TaxaPrisWebApp.Services
                 return null;
             }
 
-            List<TaxaService>? allData;
+            List<TaxaPriceData>? allData;
 
             // Deserialise JSON-data to a list of QuestionData-objects
-            allData = JsonConvert.DeserializeObject<List<TaxaService>>(json);
+            allData = JsonConvert.DeserializeObject<List<TaxaPriceData>>(json);
 
             return allData;
         }

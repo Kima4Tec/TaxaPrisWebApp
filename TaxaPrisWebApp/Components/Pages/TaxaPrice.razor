@@ -1,6 +1,12 @@
 ﻿@page "/TaxaPrice";
 @using TaxaPrisWebApp.Services
-@inject Services.TaxaService TaxaService
+@using System.Collections.Generic
+@using TaxaPrisWebApp.Models
+@using TaxaPrisWebApp.ViewModels
+@inject TaxaService TaxaService
+@inject TaxaPriceService TaxaPriceService
+@inject TaxaPriceData TaxaPriceData
+@inject TaxaPriceCalcViewModel VModel
 
 <h3>Taxa Priser</h3>
 <table class="table table-striped">
@@ -35,37 +41,37 @@
 
         <tr>
             <th>Startpris</th>
-            <th>@GetKoerselValue(1, "StartPris") kr.</th>
-            <th>@GetKoerselValue(2, "StartPris") kr.</th>
-            <th>@GetKoerselValue(3, "StartPris") kr.</th>
-            <th>@GetKoerselValue(4, "StartPris") kr.</th>
+            <th>@TaxaPriceService.GetKoerselValue(VModel.AllPrice, 1, "StartPris") kr.</th>
+            <th>@TaxaPriceService.GetKoerselValue(VModel.AllPrice, 2, "StartPris") kr.</th>
+            <th>@TaxaPriceService.GetKoerselValue(VModel.AllPrice, 3, "StartPris") kr.</th>
+            <th>@TaxaPriceService.GetKoerselValue(VModel.AllPrice, 4, "StartPris") kr.</th>
         </tr>
         <tr>
             <th>Kilometerpris</th>
-            <th>@GetKoerselValue(1, "KilometerPris") kr.</th>
-            <th>@GetKoerselValue(2, "KilometerPris") kr.</th>
-            <th>@GetKoerselValue(3, "KilometerPris") kr.</th>
-            <th>@GetKoerselValue(4, "KilometerPris") kr.</th>
+            <th>@TaxaPriceService.GetKoerselValue(VModel.AllPrice,1, "KilometerPris") kr.</th>
+            <th>@TaxaPriceService.GetKoerselValue(VModel.AllPrice,2, "KilometerPris") kr.</th>
+            <th>@TaxaPriceService.GetKoerselValue(VModel.AllPrice,3, "KilometerPris") kr.</th>
+            <th>@TaxaPriceService.GetKoerselValue(VModel.AllPrice,4, "KilometerPris") kr.</th>
         </tr>
         <tr>
             <th>Minutpris</th>
-            <th>@GetKoerselValue(1, "MinutPris") kr.</th>
-            <th>@GetKoerselValue(2, "MinutPris") kr.</th>
-            <th>@GetKoerselValue(3, "MinutPris") kr.</th>
-            <th>@GetKoerselValue(4, "MinutPris") kr.</th>
+            <th>@TaxaPriceService.GetKoerselValue(VModel.AllPrice,1, "MinutPris") kr.</th>
+            <th>@TaxaPriceService.GetKoerselValue(VModel.AllPrice,2, "MinutPris") kr.</th>
+            <th>@TaxaPriceService.GetKoerselValue(VModel.AllPrice,3, "MinutPris") kr.</th>
+            <th>@TaxaPriceService.GetKoerselValue(VModel.AllPrice,4, "MinutPris") kr.</th>
         </tr>
     </tbody>
 </table>
 <br />
 <br />
 <h3>Tillægspriser</h3>
-<p>Tillæg pr. cykel: @GetTillaegValue("PrCykel") kr.</p>
-<p>Tillæg pr. opbæring: @GetTillaegValue("Opbaering") kr.</p>
-<p>Tillæg for lufthavn: @GetTillaegValue("Lufthavn") kr.</p>
-<p>Tillæg for 5-6 passagerer i almindelig vogn: @GetTillaegValue("MereEnd4") kr.</p>
-<p>Tillæg for Liftvogn: @GetTillaegValue("LiftVogn") kr.</p>
-<p>Tillæg for kørsel over Øresund: @GetTillaegValue("Oeresund") kr.</p>
-<p>Tillæg for kørsel over Storebælt: @GetTillaegValue("Storebaelt") kr.</p>
+<p>Tillæg pr. cykel: @TaxaPriceService.GetTillaegValue(VModel.CurrentTaxa, "PrCykel") kr.</p>
+<p>Tillæg pr. opbæring: @TaxaPriceService.GetTillaegValue(VModel.CurrentTaxa, "Opbaering") kr.</p>
+<p>Tillæg for lufthavn: @TaxaPriceService.GetTillaegValue(VModel.CurrentTaxa, "Lufthavn") kr.</p>
+<p>Tillæg for 5-6 passagerer i almindelig vogn: @TaxaPriceService.GetTillaegValue(VModel.CurrentTaxa, "MereEnd4") kr.</p>
+<p>Tillæg for Liftvogn: @TaxaPriceService.GetTillaegValue(VModel.CurrentTaxa, "LiftVogn") kr.</p>
+<p>Tillæg for kørsel over Øresund: @TaxaPriceService.GetTillaegValue(VModel.CurrentTaxa, "Oeresund") kr.</p>
+<p>Tillæg for kørsel over Storebælt: @TaxaPriceService.GetTillaegValue(VModel.CurrentTaxa, "Storebaelt") kr.</p>
 
 @code {
     private List<TaxaService>? allPrice;
@@ -73,16 +79,11 @@
 
     protected override void OnInitialized()
     {
-        allPrice = TaxaService.GetJsonData();
-        currentTaxa = allPrice?.FirstOrDefault();
+        VModel.AllPrice = TaxaService.GetJsonData();
+        if (VModel.AllPrice != null)
+        {
+            VModel.CurrentTaxa = VModel.AllPrice.FirstOrDefault();
+        }
     }
-    private string GetKoerselValue(int carId, string key)
-    {
-        var car = allPrice?.FirstOrDefault(c => c.Id == carId);
-        return car?.Koersel != null && car.Koersel.TryGetValue(key, out var value) ? value : "N/A";
-    }
-    private string GetTillaegValue(string key)
-    {
-        return currentTaxa?.Tillaeg != null && currentTaxa.Tillaeg.TryGetValue(key, out var value) ? value : "N/A";
-    }
+
 }

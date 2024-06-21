@@ -1,8 +1,12 @@
 ﻿@page "/TaxaPriceCalc";
 @using TaxaPrisWebApp.Services
 @using System.Collections.Generic
-@using TaxaPrisWebApp.Model
-@inject Services.TaxaService TaxaService
+@using TaxaPrisWebApp.Models
+@using TaxaPrisWebApp.ViewModels
+@inject TaxaService TaxaService
+@inject TaxaPriceService TaxaPriceService
+@inject TaxaPriceData TaxaPriceData
+@inject TaxaPriceCalcViewModel VModel
 @inject IJSRuntime JSRuntime
 @rendermode InteractiveServer
 
@@ -31,31 +35,32 @@
             @* choose time of day drop down menu based on car choice *@
             <td valign="top" width="15%" height="20px">
                     <br />
-                @showTimeTitle
+                @VModel.ShowTimeTitle
                 <br />
-                @if(allPrice != null){
-                @if (ConvertedCarMessage == "Almindelig Vogn")
+                @if (VModel.AllPrice != null)
+                {
+                    @if (VModel.ConvertedCarMessage == "Almindelig Vogn")
                     {
                     <select @onchange="HandleTimeChange">
                             <option value="1">[Vælg tid]</option>
-                        <option value="1">@allPrice.First(c => c.Id == 1).Tid</option>
-                        <option value="2">@allPrice.First(c => c.Id == 2).Tid</option>
+                            <option value="1">@VModel.AllPrice.First(c => c.Id == 1).Tid</option>
+                            <option value="2">@VModel.AllPrice.First(c => c.Id == 2).Tid</option>
                         </select>
                     }
-                else if (ConvertedCarMessage == "Stor Vogn - minibus")
+                    else if (VModel.ConvertedCarMessage == "Stor Vogn - minibus")
                     {
                     <select @onchange="HandleTimeChange">
                             <option value="3">[Vælg tid]</option>
-                        <option value="3">@allPrice.First(c => c.Id == 3).Tid</option>
-                        <option value="4">@allPrice.First(c => c.Id == 4).Tid</option>
+                            <option value="3">@VModel.AllPrice.First(c => c.Id == 3).Tid</option>
+                            <option value="4">@VModel.AllPrice.First(c => c.Id == 4).Tid</option>
                         </select>
                     }
                     else
                 {
                     <select @onchange="HandleTimeChange">
                     <option value="1">[Vælg tid]</option>
-                        <option value="1">@allPrice.First(c => c.Id == 1).Tid</option>
-                        <option value="2">@allPrice.First(c => c.Id == 2).Tid</option>
+                            <option value="1">@VModel.AllPrice.First(c => c.Id == 1).Tid</option>
+                            <option value="2">@VModel.AllPrice.First(c => c.Id == 2).Tid</option>
                 </select>
                 }
                 }
@@ -65,11 +70,11 @@
             @* choose number of passenger drop down menu. In a standard car, you can only have 6 passengers *@
             <td valign="top" width="15%" height="20px">
 
-                @if (ConvertedCarMessage == "Almindelig Vogn")
+                @if (VModel.ConvertedCarMessage == "Almindelig Vogn")
                     {
                     <br />
 
-                    @showPassengerTitle
+                    @VModel.ShowPassengerTitle
 
                     <br />
                     <select @onchange="HandlePassengerChange">
@@ -86,7 +91,7 @@
                     {
                     <br />
 
-                    @showPassengerTitle
+                    @VModel.ShowPassengerTitle
 
                     <br />
                     <select @onchange="HandlePassengerChange">
@@ -119,7 +124,7 @@
             @* choose supplementaries look if they are checked *@
             <td valign="top">
                 <br />
-                @foreach (var option in Options)
+                @foreach (var option in VModel.Options)
                 {
                     <label>
                         <input type="checkbox" @bind="option.IsChecked" /> @option.Label
@@ -129,7 +134,7 @@
                 }
                 <br />
 
-                @if (Options[0].IsChecked == true)
+                @if (VModel.Options[0].IsChecked == true)
                 {
                     string bikeNo = "Antal Cykler:";
                     @bikeNo 
@@ -139,13 +144,13 @@
                         <option value="2">2</option>
                     </select>           
                 }
-                else if (Options[0].IsChecked == false)
+                else if (VModel.Options[0].IsChecked == false)
                 {
-                    ConvertedBikePrice = 0;
+                    VModel.ConvertedBikePrice = 0;
                 }
 
                 <br /><br />
-                @if (Options[1].IsChecked == true)
+                @if (VModel.Options[1].IsChecked == true)
                 {
                     string upNo = "Antal opbæringer:";
                     @upNo
@@ -158,45 +163,45 @@
                         <option value="5">5</option>
                     </select>
                 }
-                else if (Options[1].IsChecked == false)
+                else if (VModel.Options[1].IsChecked == false)
                 {
-                    ConvertedUpPrice = 0;
+                    VModel.ConvertedUpPrice = 0;
                 }
 
-                @if (Options[2].IsChecked == true)
+                @if (VModel.Options[2].IsChecked == true)
                 {
-                        AirportPrice = int.Parse(GetTillaegValue("Lufthavn"));
+                    VModel.AirportPrice = int.Parse(TaxaPriceService.GetTillaegValue(VModel.CurrentTaxa, "Lufthavn"));
                 }
-                else if (Options[2].IsChecked == false)
+                else if (VModel.Options[2].IsChecked == false)
                 {
-                    AirportPrice = 0;
-                }
-
-                @if (Options[3].IsChecked == true)
-                {
-                    LiftPrice = int.Parse(GetTillaegValue("LiftVogn"));
-                }
-                else if (Options[3].IsChecked == false)
-                {
-                    LiftPrice = 0;
+                    VModel.AirportPrice = 0;
                 }
 
-                @if (Options[4].IsChecked == true)
+                @if (VModel.Options[3].IsChecked == true)
                 {
-                        OeresundPrice = int.Parse(GetTillaegValue("Oeresund"));
+                    VModel.LiftPrice = int.Parse(TaxaPriceService.GetTillaegValue(VModel.CurrentTaxa, "LiftVogn"));
                 }
-                else if (Options[4].IsChecked == false)
+                else if (VModel.Options[3].IsChecked == false)
                 {
-                    OeresundPrice = 0;
+                    VModel.LiftPrice = 0;
                 }
 
-                @if (Options[5].IsChecked == true)
+                @if (VModel.Options[4].IsChecked == true)
                 {
-                        StorebaeltPrice = int.Parse(GetTillaegValue("Storebaelt"));
+                    VModel.OeresundPrice = int.Parse(TaxaPriceService.GetTillaegValue(VModel.CurrentTaxa, "Oeresund"));
                 }
-                else if (Options[5].IsChecked == false)
+                else if (VModel.Options[4].IsChecked == false)
                 {
-                    StorebaeltPrice = 0;
+                    VModel.OeresundPrice = 0;
+                }
+
+                @if (VModel.Options[5].IsChecked == true)
+                {
+                    VModel.StorebaeltPrice = int.Parse(TaxaPriceService.GetTillaegValue(VModel.CurrentTaxa, "Storebaelt"));
+                }
+                else if (VModel.Options[5].IsChecked == false)
+                {
+                    VModel.StorebaeltPrice = 0;
                 }
 
             </td>
@@ -214,7 +219,7 @@
         <td width ="340px">
         <label for="inputField">Skriv distance:</label>
         <br>
-            <input type="text" id="inputField" name="inputField" @bind="DistanceValue">
+            <input type="text" id="inputField" name="inputField" @bind="VModel.DistanceValue">
         <br>
         <br>
             <input class="btn btn-primary" type="submit" value="Submit" @onclick="PrintoutData">
@@ -222,138 +227,39 @@
         </td>
         <td style="align-content:start;">
             <br />
-            <span style="border-block:dashed;width:fit-content; font-size:x-large">@SelectedData</span>
+            <span style="border-block:dashed;width:fit-content; font-size:x-large">@VModel.SelectedData</span>
         </td>
     </tr>
 </table>
 
-
-
 @code {
-
-    public List<TaxaService>? allPrice;
-    public string showTimeTitle = "Tidspunkt";
-    public string showPassengerTitle = "Antal Passagerer";
-    public int currentQuestionIndex = 0;
-    public TaxaService? currentTaxa;
-    // public string? _selectedOption;
-
-    //PROPERTIES
-    //Get carprice
-    public string? Message { get; set; }
-    public string? ConvertedCarMessage { get; set; }
-    public string? SelectedTime { get; set; }
-    public int SelectedPassenger { get; set; }
-    public int MoreThanFour { get; set; }  
-
-    //Supplementary
-    public int ConvertedBikePrice { get; set; }
-    public int ConvertedUpPrice { get; set; }
-    public int AirportPrice { get; set; }
-    public int LiftPrice { get; set; }
-    public int OeresundPrice { get; set; }
-    public int StorebaeltPrice { get; set; }
-
-
-    //Print out data
-    public string? SelectedData { get; set; }
-    public string? DistanceValue { get; set; }
-    public int SelectedId { get; set; }
-    public string? SelectedOptionsText { get; set; }
-
-    public List<CheckBoxOption> Options = new List<CheckBoxOption>
-    {
-        new CheckBoxOption { IsChecked = false, Label = "Cykel" },
-        new CheckBoxOption { IsChecked = false, Label = "Opbæring" },
-        new CheckBoxOption { IsChecked = false, Label = "Lufthavn" },
-        new CheckBoxOption { IsChecked = false, Label = "Liftvogn" },
-        new CheckBoxOption { IsChecked = false, Label = "Øresund" },
-        new CheckBoxOption { IsChecked = false, Label = "Storebælt" }
-    };
 
     /// <summary>
     /// Starting up - and getting data from json file
     /// </summary>
     protected override void OnInitialized()
     {
-        allPrice = TaxaService.GetJsonData();
-        if (allPrice != null)
+        VModel.AllPrice = TaxaService.GetJsonData();
+        if (VModel.AllPrice != null)
         {
-            currentTaxa = allPrice.FirstOrDefault();
+            VModel.CurrentTaxa = VModel.AllPrice.FirstOrDefault();
         }
 
-    }
-    /// <summary>
-    /// Exceptionhandling
-    /// </summary>
-    /// <param name="carId"></param>
-    /// <param name="key"></param>
-    /// <returns></returns>
-    private string GetKoerselValue(int carId, string key)
-    {
-        var car = allPrice?.FirstOrDefault(c => c.Id == carId);
-        return car?.Koersel != null && car.Koersel.TryGetValue(key, out var value) ? value : "N/A";
-    }
-
-    /// <summary>
-    /// Exceptionhandling
-    /// </summary>
-    /// <param name="key"></param>
-    /// <returns></returns>
-    private string GetTillaegValue(string key)
-    {
-        return currentTaxa?.Tillaeg != null && currentTaxa.Tillaeg.TryGetValue(key, out var value) ? value : "N/A";
-    }
-
-    /// <summary>
-    /// Exceptionhandling
-    /// </summary>
-    /// <param name="id"></param>
-    /// <param name="key"></param>
-    /// <returns></returns>
-    private int GetTillaegValueAsInt(int id, string key)
-    {
-        var item = allPrice?.FirstOrDefault(m => m.Id == id);
-        if (item?.Tillaeg != null && item.Tillaeg.TryGetValue(key, out var value))
-        {
-            return int.TryParse(value, out int result) ? result : 0;
-        }
-        return 0;
-    }
-    private int GetKoerselValueAsInt(int id, string key)
-    {
-        var car = allPrice?.FirstOrDefault(c => c.Id == id);
-        if (car?.Koersel != null && car.Koersel.TryGetValue(key, out var value))
-        {
-            return int.TryParse(value, out int result) ? result : 0;
-        }
-        return 0;
-    }
-
-
-    private decimal GetKoerselValueAsDecimal(int id, string key)
-    {
-        var car = allPrice?.FirstOrDefault(c => c.Id == id);
-        if (car?.Koersel != null && car.Koersel.TryGetValue(key, out var value))
-        {
-            return decimal.TryParse(value, out decimal result) ? result : 0m;
-        }
-        return 0m;
     }
 
     public void PrintSelectedOptions()
     {
-        var selectedOptions = Options.Where(option => option.IsChecked).Select(option => option.Label);
-        SelectedOptionsText = "Selected Options: " + string.Join(", ", selectedOptions);
+        var selectedOptions = VModel.Options.Where(option => option.IsChecked).Select(option => option.Label);
+        VModel.SelectedOptionsText = "Selected Options: " + string.Join(", ", selectedOptions);
     }
 
     public void HandleCarChange(ChangeEventArgs e)
     {
         string? selectedCar = e?.Value?.ToString() ?? "0";
         int selectedCarId = int.Parse(selectedCar);
-        if (allPrice != null)
+        if (VModel.AllPrice != null)
         {
-            ConvertedCarMessage = allPrice.First(c => c.Id == selectedCarId).VognType;            
+            VModel.ConvertedCarMessage = VModel.AllPrice.First(c => c.Id == selectedCarId).VognType;
         }
     }
 
@@ -361,9 +267,9 @@
     {
         string? selectedTime = f?.Value?.ToString() ?? "0";
         int convertedTime = int.Parse(selectedTime);
-        if (allPrice != null)
+        if (VModel.AllPrice != null)
         {
-            SelectedTime = allPrice.First(c => c.Id == convertedTime).Tid;
+            VModel.SelectedTime = VModel.AllPrice.First(c => c.Id == convertedTime).Tid;
         }
     }
 
@@ -372,28 +278,28 @@
         string? selectedPassenger = g?.Value?.ToString() ?? "0";
         if (selectedPassenger != string.Empty)
         {
-            Message = "\tDu valgte: ";
+            VModel.Message = "\tDu valgte: ";
             if (selectedPassenger == "5" || selectedPassenger == "6")
             {
                 JSRuntime.InvokeVoidAsync("alert", "Ved mere end 4 passagerer, er der et tillæg på 40 kr.");
-                MoreThanFour = GetTillaegValueAsInt(1, "MereEnd4");
+                VModel.MoreThanFour = TaxaPriceService.GetTillaegValueAsInt(VModel.AllPrice, 1, "MereEnd4");
 
             }
         }
         else
         {
-            Message = "";
+            VModel.Message = "";
         }
-        SelectedPassenger = int.Parse(selectedPassenger);
+        VModel.SelectedPassenger = int.Parse(selectedPassenger);
     }
 
     public void HandleBikeChange(ChangeEventArgs h)
     {
         string? selectedBike = h?.Value?.ToString() ?? "0";
         int selectedBikeNo = int.Parse(selectedBike);
-        if (allPrice != null)
+        if (VModel.AllPrice != null)
         {
-            ConvertedBikePrice = int.Parse(GetTillaegValue("PrCykel")) * selectedBikeNo;
+            VModel.ConvertedBikePrice = int.Parse(TaxaPriceService.GetTillaegValue(VModel.CurrentTaxa, "PrCykel")) * selectedBikeNo;
         }
     }
 
@@ -404,56 +310,56 @@
         {
             selectedUpNo = 0;
         }
-        if (allPrice != null)
+        if (VModel.AllPrice != null)
         {
-            ConvertedUpPrice = int.Parse(allPrice?.First()?.Tillaeg?["Opbaering"] ?? "0") * selectedUpNo;
+            VModel.ConvertedUpPrice = int.Parse(VModel.AllPrice?.First()?.Tillaeg?["Opbaering"] ?? "0") * selectedUpNo;
         }
     }
 
     public void PrintoutData()
     {
-        if (ConvertedCarMessage == "Almindelig Vogn")
+        if (VModel.ConvertedCarMessage == "Almindelig Vogn")
         {
-            if (SelectedTime == "AftenNatHelligdag")
+            if (VModel.SelectedTime == "AftenNatHelligdag")
             {
-                SelectedId = 2;
+                VModel.SelectedId = 2;
             }
             else
             {
-                SelectedId = 1;
+                VModel.SelectedId = 1;
             }
         }
-        else if (ConvertedCarMessage == "Stor Vogn - minibus")
+        else if (VModel.ConvertedCarMessage == "Stor Vogn - minibus")
         {
-            if (SelectedTime == "AftenNatHelligdag")
+            if (VModel.SelectedTime == "AftenNatHelligdag")
             {
-                SelectedId = 4;
+                VModel.SelectedId = 4;
             }
             else
             {
-                SelectedId = 3;
+                VModel.SelectedId = 3;
             }
         }
-        if (SelectedId != 0 && DistanceValue != null)
+        if (VModel.SelectedId != 0 && VModel.DistanceValue != null)
         {       
-        int startPris = GetKoerselValueAsInt(SelectedId, "StartPris");
-        decimal? kmPris = GetKoerselValueAsDecimal(SelectedId, "KilometerPris");
-        decimal? minutPris = GetKoerselValueAsDecimal(SelectedId, "MinutPris");
+            int startPris = TaxaPriceService.GetKoerselValueAsInt(VModel.AllPrice, VModel.SelectedId, "StartPris");
+            decimal? kmPris = TaxaPriceService.GetKoerselValueAsDecimal(VModel.AllPrice, VModel.SelectedId, "KilometerPris");
+            decimal? minutPris = TaxaPriceService.GetKoerselValueAsDecimal(VModel.AllPrice, VModel.SelectedId, "MinutPris");
         
-        decimal distance = decimal.Parse(DistanceValue);
+            decimal distance = decimal.Parse(VModel.DistanceValue);
         decimal minuts = distance * 1.2M;
 
 
-        decimal? turPris = distance * kmPris + minuts * minutPris + startPris + ConvertedBikePrice + ConvertedUpPrice + AirportPrice + LiftPrice + OeresundPrice + StorebaeltPrice + MoreThanFour;          
+            decimal? turPris = distance * kmPris + minuts * minutPris + startPris + VModel.ConvertedBikePrice + VModel.ConvertedUpPrice + VModel.AirportPrice + VModel.LiftPrice + VModel.OeresundPrice + VModel.StorebaeltPrice + VModel.MoreThanFour;
         string selectedData = $"Den valgte tur koster {turPris:F2} kr.";
 
-        SelectedData = selectedData;
+            VModel.SelectedData = selectedData;
         }
-        else if (SelectedId == 0)
+        else if (VModel.SelectedId == 0)
         {
             JSRuntime.InvokeVoidAsync("alert", "Du skal vælge vogn for at udregne en pris.");
         }
-        else if (DistanceValue == null)
+        else if (VModel.DistanceValue == null)
         {
             JSRuntime.InvokeVoidAsync("alert", "Vælg distance. Har du ikke valgt tidspunkt og antal passagerer, vælges dagspris og under 5 passagerer.");
         }

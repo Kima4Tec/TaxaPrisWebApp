@@ -1,6 +1,7 @@
 using TaxaPrisWebApp.Components;
 using TaxaPrisWebApp.Services;
-using TaxaPrisWebApp.Model;
+using TaxaPrisWebApp.Models;
+using TaxaPrisWebApp.ViewModels;
 
 namespace TaxaPrisWebApp
 {
@@ -14,6 +15,9 @@ namespace TaxaPrisWebApp
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();
             builder.Services.AddSingleton<TaxaService>();
+            builder.Services.AddSingleton<TaxaPriceService>();
+            builder.Services.AddSingleton<TaxaPriceData>();
+            builder.Services.AddSingleton<TaxaPriceCalcViewModel>();
 
             var app = builder.Build();
 
